@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
         # Calling "image_encode" Function:S9
         try:
-            image_encode_backend_response = image_encode()
+            image_encode_backend_response = image_encode(database_file_path = str(database_file_path))
             if image_encode_backend_response['status'] == 'ERROR':
                 print(f'ERROR - [Main:S9] - {image_encode_backend_response["message"]}')
                 sys.exit(1)

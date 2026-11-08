@@ -1,16 +1,19 @@
 # Define "image_encode" Function
-def image_encode() -> dict[str, str]:
+def image_encode(database_file_path: str) -> dict[str, str]:
     # Importing Python Modules:S1
     try:
         from pathlib import Path
         import shutil
         import base64
+        import sqlite3
+        import hashlib
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Encode', 'step': '1', 'message': str(error)}
 
     # Define Folder Path:S2
     try:
         parent_folder_path = Path.cwd()
+        database_file_path_object = Path(database_file_path)
         tmp_folder_path = Path(parent_folder_path) / 'tmp'
         converted_images_folder_path = Path(tmp_folder_path) / 'ConvertedImages'
         encoded_images_folder_path = Path(tmp_folder_path) / 'EncodedImages'
@@ -25,41 +28,89 @@ def image_encode() -> dict[str, str]:
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Encode', 'step': '3', 'message': str(error)}
 
-    # Creating Path Object And Check If "ConvertedImages" Folder Is Present:S4
+    # Check "ConvertedImages" Folder Exists And Is Not Empty:S4
     try:
         converted_images_folder_path_object = Path(converted_images_folder_path)
         if not (converted_images_folder_path_object.exists() and converted_images_folder_path_object.is_dir()):
-            return {'status': 'ERROR', 'file_name': 'Image-Encode', 'step': '4', 'message': f'"{converted_images_folder_path_object.name}" Folder Not Present'}
+            return {'status': 'ERROR', 'file_name': 'Image-Encode', 'step': '4', 'message': '"ConvertedImages" Folder Not Present'}
+        if not any(converted_images_folder_path_object.iterdir()):
+            return {'status': 'INFO', 'file_name': 'Image-Encode', 'step': '4', 'message': '"ConvertedImages" Folder Is Empty'}
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Encode', 'step': '4', 'message': str(error)}
 
-    # Create Input JPG File Path List:S5
+    # Fetch Converted Image Details From Database:S5
     try:
-        input_images_file_path_list = sorted(
-            file_path for file_path in converted_images_folder_path_object.iterdir()
-            if file_path.is_file() and file_path.suffix.lower() == '.jpg'
-        )
-        if not input_images_file_path_list:
-            return {'status': 'INFO', 'file_name': 'Image-Encode', 'step': '5', 'message': f'No JPG Files Found In "{converted_images_folder_path_object.name}" Folder'}
+        with sqlite3.connect(str(database_file_path_object)) as db_connection:
+            db_connection.row_factory = sqlite3.Row
+            db_cursor = db_connection.cursor()
+            converted_images_details_rows = db_cursor.execute('''
+                SELECT cd.*
+                FROM converted_images_details cd
+                INNER JOIN raw_images_details rd ON cd.raw_file_id = rd.file_id
+                WHERE rd.file_status = ?
+                ORDER BY cd.id
+            ''', ('Converted',)).fetchall()
+        if not converted_images_details_rows:
+            return {'status': 'INFO', 'file_name': 'Image-Encode', 'step': '5', 'message': 'No Converted Image Details Found In Database'}
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Encode', 'step': '5', 'message': str(error)}
 
     # Convert Input Images To Base64 Text Files:S6
     try:
         print('')
-        for image_number, image_file_path in enumerate(input_images_file_path_list, start = 1):
-            base64_text = base64.b64encode(image_file_path.read_bytes()).decode('ascii')
-            encoded_image_file_path = encoded_images_folder_path / f'{image_file_path.stem}.txt'
+        for image_number, converted_image_details_row in enumerate(converted_images_details_rows, start = 1):
+            converted_image_file_path = Path(converted_image_details_row['file_path'])
+            base64_text = base64.b64encode(converted_image_file_path.read_bytes()).decode('ascii')
+            encoded_image_file_path = encoded_images_folder_path / f'{converted_image_file_path.stem}.txt'
             encoded_image_file_path.write_text(base64_text, encoding = 'ascii')
-            print(f'{image_number:05d}-> "{image_file_path.name}" File Encoded Into Base64')
+            print(f'{image_number:05d}-> "{converted_image_file_path.name}" File Encoded Into Base64')
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Encode', 'step': '6', 'message': str(error)}
 
-    # Delete "ConvertedImages" Folder:S7
+    # Fetch Encoded Image Details:S7
     try:
-        shutil.rmtree(converted_images_folder_path)
+        encoded_images_details_nested_list = []
+        encoded_image_file_path_list = sorted(
+            file_path for file_path in encoded_images_folder_path.iterdir()
+            if file_path.is_file()
+        )
+        for image_number, encoded_image_file_path in enumerate(encoded_image_file_path_list, start = 1):
+            raw_file_id = converted_images_details_rows[image_number - 1]['raw_file_id']
+            file_name = encoded_image_file_path.name
+            file_path = str(encoded_image_file_path)
+            file_type = 'txt'
+            file_size_bytes = encoded_image_file_path.stat().st_size
+            file_hash = hashlib.md5(encoded_image_file_path.read_bytes()).hexdigest()
+            encoded_images_details_nested_list.append(
+                (raw_file_id, file_name, file_path, file_type, file_size_bytes, file_hash)
+            )
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Encode', 'step': '7', 'message': str(error)}
 
-    # Return Success:S8
-    return {'status': 'SUCCESS', 'file_name': 'Image-Encode', 'step': '8', 'message': 'All The Images Encoded Into Base64 Successfully'}
+    # Insert Encoded Image Details Into Database:S8
+    try:
+        with sqlite3.connect(str(database_file_path_object)) as db_connection:
+            db_cursor = db_connection.cursor()
+            db_cursor.executemany('''
+                INSERT INTO encoded_images_details (raw_file_id, file_name, file_path, file_type, file_size_bytes, file_hash)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', encoded_images_details_nested_list)
+            db_connection.commit()
+    except Exception as error:
+        return {'status': 'ERROR', 'file_name': 'Image-Encode', 'step': '8', 'message': str(error)}
+
+    # Update Raw Images Status To "Encoded":S9
+    try:
+        with sqlite3.connect(str(database_file_path_object)) as db_connection:
+            db_cursor = db_connection.cursor()
+            for converted_image_details_row in converted_images_details_rows:
+                db_cursor.execute(
+                    'UPDATE raw_images_details SET file_status = ? WHERE file_id = ?',
+                    ('Encoded', converted_image_details_row['raw_file_id'])
+                )
+            db_connection.commit()
+    except Exception as error:
+        return {'status': 'ERROR', 'file_name': 'Image-Encode', 'step': '9', 'message': str(error)}
+
+    # Return Success:S10
+    return {'status': 'SUCCESS', 'file_name': 'Image-Encode', 'step': '10', 'message': 'All The Images Encoded Into Base64 Successfully'}

@@ -1,20 +1,22 @@
 # Define "image_decode" Function
-def image_decode(images_folder_path: str) -> dict[str, str]:
+def image_decode(database_file_path: str) -> dict[str, str]:
     # Importing Python Modules:S1
     try:
         from pathlib import Path
         import shutil
         import base64
+        import sqlite3
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decode', 'step': '1', 'message': str(error)}
 
     # Define Folder Path:S2
     try:
         parent_folder_path = Path.cwd()
+        database_file_path_object = Path(database_file_path)
         tmp_folder_path = Path(parent_folder_path) / 'tmp'
         encoded_images_folder_path = Path(tmp_folder_path) / 'EncodedImages'
         original_images_folder_path = Path(tmp_folder_path) / 'OriginalImages'
-        images_folder_path_object = Path(images_folder_path)
+        images_folder_path_object = Path(parent_folder_path) / 'images'
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decode', 'step': '2', 'message': str(error)}
 

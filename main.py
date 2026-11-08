@@ -168,14 +168,14 @@ if __name__ == '__main__':
             print(f'ERROR - [Main:S13] - {str(error)}')
             sys.exit(1)
 
-        # # Decode Encoded Text Files To Original Images And Copy To "images" Folder:S13
-        # try:
-        #     image_decode_backend_response = image_decode(images_folder_path = str(images_folder_path))
-        #     if image_decode_backend_response['status'] == 'ERROR':
-        #         print(f'ERROR - [Main:S13] - {image_decode_backend_response["message"]}')
-        #         sys.exit(1)
-        #     else:
-        #         print(f'-> {image_decode_backend_response["message"]}')
-        # except Exception as error:
-        #     print(f'ERROR - [Main:S13] - {str(error)}')
-        #     sys.exit(1)
+        # Decode Encoded Text Files To Original Images And Copy To "images" Folder:S14
+        try:
+            image_decode_backend_response = image_decode(database_file_path = str(database_file_path))
+            if image_decode_backend_response['status'] == 'ERROR':
+                print(f'ERROR - [Main:S14] - {image_decode_backend_response["message"]}')
+                sys.exit(1)
+            else:
+                print(f'-> {image_decode_backend_response["message"]}')
+        except Exception as error:
+            print(f'ERROR - [Main:S14] - {str(error)}')
+            sys.exit(1)

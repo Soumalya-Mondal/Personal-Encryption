@@ -11,3 +11,4 @@ wheels/
 
 # Exclude Folders
 tmp/
+OriginalImages/

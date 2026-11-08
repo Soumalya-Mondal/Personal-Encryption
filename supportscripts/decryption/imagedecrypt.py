@@ -1,5 +1,5 @@
 # Define "image_decrypt" Function
-def image_decrypt(images_folder_path: str, encryption_password: str) -> dict[str, str]:
+def image_decrypt(database_file_path: str, encryption_password: str) -> dict[str, str]:
     # Define Constant
     SALT_SIZE = 64
 
@@ -8,6 +8,7 @@ def image_decrypt(images_folder_path: str, encryption_password: str) -> dict[str
         from pathlib import Path
         import shutil
         import base64
+        import sqlite3
         from cryptography.fernet import Fernet, InvalidToken
         from cryptography.hazmat.primitives.kdf.argon2 import Argon2id
     except Exception as error:
@@ -18,7 +19,8 @@ def image_decrypt(images_folder_path: str, encryption_password: str) -> dict[str
         parent_folder_path = Path.cwd()
         tmp_folder_path = Path(parent_folder_path) / 'tmp'
         encoded_images_folder_path = Path(tmp_folder_path) / 'EncodedImages'
-        images_folder_path_object = Path(images_folder_path)
+        images_folder_path_object = Path(parent_folder_path) / 'images'
+        database_file_path_object = Path(database_file_path)
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '2', 'message': str(error)}
 
@@ -30,27 +32,36 @@ def image_decrypt(images_folder_path: str, encryption_password: str) -> dict[str
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '3', 'message': str(error)}
 
-    # Check If "images" Folder Is Present:S4
+    # Check Database File Exists:S4
     try:
-        if not (images_folder_path_object.exists() and images_folder_path_object.is_dir()):
-            return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '4', 'message': f'"{images_folder_path_object.name}" Folder Not Present'}
+        if not (database_file_path_object.exists() and database_file_path_object.is_file()):
+            return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '4', 'message': 'Database File Not Found'}
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '4', 'message': str(error)}
 
-    # Create Encrypted File Path List:S5
+    # Fetch Encrypted Image Details From Database:S5
     try:
-        encrypted_image_file_path_list = sorted(
-            file_path for file_path in images_folder_path_object.iterdir()
-            if file_path.is_file()
-        )
-        if not encrypted_image_file_path_list:
-            return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '5', 'message': f'No Encrypted Files Found In "{images_folder_path_object.name}" Folder'}
+        with sqlite3.connect(str(database_file_path_object)) as db_connection:
+            db_connection.row_factory = sqlite3.Row
+            db_cursor = db_connection.cursor()
+            encrypted_images_details_rows = db_cursor.execute('''
+                SELECT eid.file_name, eid.copied_file_path
+                FROM encrypted_images_details eid
+                INNER JOIN raw_images_details rid ON eid.raw_file_id = rid.file_id
+                WHERE rid.file_status = ?
+                ORDER BY eid.id
+            ''', ('Encrypted',)).fetchall()
+        if not encrypted_images_details_rows:
+            return {'status': 'INFO', 'file_name': 'Image-Decrypt', 'step': '5', 'message': 'No Encrypted Image Details Found In Database'}
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '5', 'message': str(error)}
 
     # Decrypt Encrypted Files:S6
     try:
-        for decrypted_number, encrypted_image_file_path in enumerate(encrypted_image_file_path_list, start = 1):
+        for decrypted_number, encrypted_image_details_row in enumerate(encrypted_images_details_rows, start = 1):
+            encrypted_image_file_path = Path(encrypted_image_details_row['copied_file_path'])
+            if not (encrypted_image_file_path.exists() and encrypted_image_file_path.is_file()):
+                return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '6', 'message': f'File Not Found: {encrypted_image_file_path.name}'}
             encrypted_data = encrypted_image_file_path.read_bytes()
             if len(encrypted_data) <= SALT_SIZE:
                 return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '6', 'message': f'Invalid or incomplete encrypted file: {encrypted_image_file_path.name}'}

@@ -153,17 +153,20 @@ if __name__ == '__main__':
             print(f'ERROR - [Main:S12] - {str(error)}')
             sys.exit(1)
 
-        # # Decrypt Encrypted Files From "images" Folder:S13
-        # try:
-        #     image_decrypt_backend_response = image_decrypt(images_folder_path = str(images_folder_path), encryption_password = encryption_password)
-        #     if image_decrypt_backend_response['status'] == 'ERROR':
-        #         print(f'ERROR - [Main:S13] - {image_decrypt_backend_response["message"]}')
-        #         sys.exit(1)
-        #     else:
-        #         print(f'-> {image_decrypt_backend_response["message"]}')
-        # except Exception as error:
-        #     print(f'ERROR - [Main:S13] - {str(error)}')
-        #     sys.exit(1)
+        # Decrypt Encrypted Files From "images" Folder:S13
+        try:
+            image_decrypt_backend_response = image_decrypt(database_file_path = str(database_file_path), encryption_password = encryption_password)
+            if image_decrypt_backend_response['status'] == 'ERROR':
+                print(f'ERROR - [Main:S13] - {image_decrypt_backend_response["message"]}')
+                sys.exit(1)
+            elif image_decrypt_backend_response['status'] == 'INFO':
+                print(f'ERROR - [Main:S13] - {image_decrypt_backend_response["message"]}')
+                sys.exit(1)
+            else:
+                print(f'-> {image_decrypt_backend_response["message"]}')
+        except Exception as error:
+            print(f'ERROR - [Main:S13] - {str(error)}')
+            sys.exit(1)
 
         # # Decode Encoded Text Files To Original Images And Copy To "images" Folder:S13
         # try:

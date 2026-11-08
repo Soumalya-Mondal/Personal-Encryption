@@ -1,5 +1,5 @@
-# Define "image_details_insert" Function
-def image_details_insert(database_file_path: str, images_folder_path: str) -> dict[str, str]:
+# Define "raw_images_details_insert" Function
+def raw_images_details_insert(database_file_path: str, images_folder_path: str) -> dict[str, str]:
     # Define Constant
     image_details_nested_list = []
 
@@ -11,30 +11,30 @@ def image_details_insert(database_file_path: str, images_folder_path: str) -> di
         import secrets
         import string
     except Exception as error:
-        return {'status': 'ERROR', 'file_name': 'Image-Details-Insert', 'step': '1', 'message': str(error)}
+        return {'status': 'ERROR', 'file_name': 'Raw-Image-Details-Insert', 'step': '1', 'message': str(error)}
 
     # Define Folder And File Path:S2
     try:
         images_folder_path_object = Path(images_folder_path)
         image_encryption_database_file_path = Path(database_file_path)
     except Exception as error:
-        return {'status': 'ERROR', 'file_name': 'Image-Details-Insert', 'step': '2', 'message': str(error)}
+        return {'status': 'ERROR', 'file_name': 'Raw-Image-Details-Insert', 'step': '2', 'message': str(error)}
 
     # Check If Database File Exists:S3
     try:
         if not image_encryption_database_file_path.exists() or not image_encryption_database_file_path.is_file():
-            return {'status': 'ERROR', 'file_name': 'Image-Details-Insert', 'step': '3', 'message': 'Database File Not Found'}
+            return {'status': 'ERROR', 'file_name': 'Raw-Image-Details-Insert', 'step': '3', 'message': 'Database File Not Found'}
     except Exception as error:
-        return {'status': 'ERROR', 'file_name': 'Image-Details-Insert', 'step': '3', 'message': str(error)}
+        return {'status': 'ERROR', 'file_name': 'Raw-Image-Details-Insert', 'step': '3', 'message': str(error)}
 
     # Check If Images Folder Exists And Is Not Empty:S4
     try:
         if not images_folder_path_object.exists() or not images_folder_path_object.is_dir():
-            return {'status': 'ERROR', 'file_name': 'Image-Details-Insert', 'step': '4', 'message': 'Images Folder Not Found'}
+            return {'status': 'ERROR', 'file_name': 'Raw-Image-Details-Insert', 'step': '4', 'message': 'Images Folder Not Found'}
         if not any(images_folder_path_object.iterdir()):
-            return {'status': 'INFO', 'file_name': 'Image-Details-Insert', 'step': '4', 'message': 'Images Folder Is Empty'}
+            return {'status': 'INFO', 'file_name': 'Raw-Image-Details-Insert', 'step': '4', 'message': 'Images Folder Is Empty'}
     except Exception as error:
-        return {'status': 'ERROR', 'file_name': 'Image-Details-Insert', 'step': '4', 'message': str(error)}
+        return {'status': 'ERROR', 'file_name': 'Raw-Image-Details-Insert', 'step': '4', 'message': str(error)}
 
     # Define Helper Function:S5
     try:
@@ -48,7 +48,7 @@ def image_details_insert(database_file_path: str, images_folder_path: str) -> di
                 if existing_file_id_row is None:
                     return file_id
     except Exception as error:
-        return {'status': 'ERROR', 'file_name': 'Image-Details-Insert', 'step': '5', 'message': str(error)}
+        return {'status': 'ERROR', 'file_name': 'Raw-Image-Details-Insert', 'step': '5', 'message': str(error)}
 
     # Fetch Image Details:S6
     try:
@@ -69,7 +69,7 @@ def image_details_insert(database_file_path: str, images_folder_path: str) -> di
                     (file_id, file_name, file_path, file_type, file_size_bytes, file_hash)
                 )
     except Exception as error:
-        return {'status': 'ERROR', 'file_name': 'Image-Details-Insert', 'step': '6', 'message': str(error)}
+        return {'status': 'ERROR', 'file_name': 'Raw-Image-Details-Insert', 'step': '6', 'message': str(error)}
 
     # Insert Image Details Into Database:S7
     try:
@@ -81,7 +81,7 @@ def image_details_insert(database_file_path: str, images_folder_path: str) -> di
             ''', image_details_nested_list)
             db_connection.commit()
     except Exception as error:
-        return {'status': 'ERROR', 'file_name': 'Image-Details-Insert', 'step': '7', 'message': str(error)}
+        return {'status': 'ERROR', 'file_name': 'Raw-Image-Details-Insert', 'step': '7', 'message': str(error)}
 
     # Return Success:S8
-    return {'status': 'SUCCESS', 'file_name': 'Image-Details-Insert', 'step': '8', 'message': 'Image Details Inserted Successfully'}
+    return {'status': 'SUCCESS', 'file_name': 'Raw-Image-Details-Insert', 'step': '8', 'message': 'Image Details Inserted Successfully'}

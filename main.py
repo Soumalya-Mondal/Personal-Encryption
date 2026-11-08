@@ -17,7 +17,7 @@ if __name__ == '__main__':
         from supportscripts.imageencrypt import image_encrypt
         from supportscripts.imagedecrypt import image_decrypt
         from supportscripts.imagedecode import image_decode
-        from supportscripts.imagedetailsinsert import image_details_insert
+        from supportscripts.rawimagesdetailsinsert import raw_images_details_insert
     except Exception as error:
         print(f'ERROR - [Main:S2] - {str(error)}')
         sys.exit(1)
@@ -69,20 +69,20 @@ if __name__ == '__main__':
             print(f'ERROR - [Main:S6] - {str(error)}')
             sys.exit(1)
 
-        # # Calling "image_details_insert" Function:S7
-        # try:
-        #     image_details_insert_backend_response = image_details_insert(database_file_path = str(database_file_path), images_folder_path = str(images_folder_path))
-        #     if image_details_insert_backend_response['status'] == 'ERROR':
-        #         print(f'ERROR - [Main:S7] - {image_details_insert_backend_response["message"]}')
-        #         sys.exit(1)
-        #     elif image_details_insert_backend_response['status'] == 'INFO':
-        #         print(f'-> {image_details_insert_backend_response["message"]}')
-        #         sys.exit(0)
-        #     else:
-        #         print(f'-> {image_details_insert_backend_response["message"]}')
-        # except Exception as error:
-        #     print(f'ERROR - [Main:S7] - {str(error)}')
-        #     sys.exit(1)
+        # Calling "raw_images_details_insert" Function:S7
+        try:
+            raw_images_details_insert_backend_response = raw_images_details_insert(database_file_path = str(database_file_path), images_folder_path = str(images_folder_path))
+            if raw_images_details_insert_backend_response['status'] == 'ERROR':
+                print(f'ERROR - [Main:S7] - {raw_images_details_insert_backend_response["message"]}')
+                sys.exit(1)
+            elif raw_images_details_insert_backend_response['status'] == 'INFO':
+                print(f'-> {raw_images_details_insert_backend_response["message"]}')
+                sys.exit(0)
+            else:
+                print(f'-> {raw_images_details_insert_backend_response["message"]}')
+        except Exception as error:
+            print(f'ERROR - [Main:S7] - {str(error)}')
+            sys.exit(1)
 
         # # Calling "image_convert" Function:S8
         # try:

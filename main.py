@@ -51,76 +51,78 @@ if __name__ == '__main__':
             images_folder_path = Path(parent_folder_path) / 'images'
             database_folder_path = Path(parent_folder_path) / 'database'
             database_folder_path.mkdir(parents = True, exist_ok = True)
+            database_file_path = Path(database_folder_path) / 'ImageEncryption.db'
         except Exception as error:
             print(f'ERROR - [Main:S5] - {str(error)}')
             sys.exit(1)
 
-        # Create Database:S6
+        # Check And Create Database:S6
         try:
-            database_create_backend_response = database_create(database_folder_path = str(database_folder_path))
-            if database_create_backend_response['status'] == 'ERROR':
-                print(f'ERROR - [Main:S6] - {database_create_backend_response["message"]}')
-                sys.exit(1)
-            else:
-                print(f'-> {database_create_backend_response["message"]}\n')
+            if ((not database_file_path.exists()) or (not database_file_path.is_file())):
+                database_create_backend_response = database_create(database_file_path = str(database_file_path))
+                if database_create_backend_response['status'] == 'ERROR':
+                    print(f'ERROR - [Main:S6] - {database_create_backend_response["message"]}')
+                    sys.exit(1)
+                else:
+                    print(f'-> {database_create_backend_response["message"]}\n')
         except Exception as error:
             print(f'ERROR - [Main:S6] - {str(error)}')
             sys.exit(1)
 
-        # Calling "image_details_insert" Function:S7
-        try:
-            image_details_insert_backend_response = image_details_insert(database_folder_path = str(database_folder_path), images_folder_path = str(images_folder_path))
-            if image_details_insert_backend_response['status'] == 'ERROR':
-                print(f'ERROR - [Main:S7] - {image_details_insert_backend_response["message"]}')
-                sys.exit(1)
-            elif image_details_insert_backend_response['status'] == 'INFO':
-                print(f'-> {image_details_insert_backend_response["message"]}')
-                sys.exit(0)
-            else:
-                print(f'-> {image_details_insert_backend_response["message"]}')
-        except Exception as error:
-            print(f'ERROR - [Main:S7] - {str(error)}')
-            sys.exit(1)
+        # # Calling "image_details_insert" Function:S7
+        # try:
+        #     image_details_insert_backend_response = image_details_insert(database_file_path = str(database_file_path), images_folder_path = str(images_folder_path))
+        #     if image_details_insert_backend_response['status'] == 'ERROR':
+        #         print(f'ERROR - [Main:S7] - {image_details_insert_backend_response["message"]}')
+        #         sys.exit(1)
+        #     elif image_details_insert_backend_response['status'] == 'INFO':
+        #         print(f'-> {image_details_insert_backend_response["message"]}')
+        #         sys.exit(0)
+        #     else:
+        #         print(f'-> {image_details_insert_backend_response["message"]}')
+        # except Exception as error:
+        #     print(f'ERROR - [Main:S7] - {str(error)}')
+        #     sys.exit(1)
 
-        # Calling "image_convert" Function:S8
-        try:
-            image_convert_backend_response = image_convert(database_folder_path = str(database_folder_path))
-            if image_convert_backend_response['status'] == 'ERROR':
-                print(f'ERROR - [Main:S8] - {image_convert_backend_response["message"]}')
-                sys.exit(1)
-            else:
-                print(f'-> {image_convert_backend_response["message"]}')
-        except Exception as error:
-            print(f'ERROR - [Main:S8] - {str(error)}')
-            sys.exit(1)
+        # # Calling "image_convert" Function:S8
+        # try:
+        #     image_convert_backend_response = image_convert(database_folder_path = str(database_folder_path))
+        #     if image_convert_backend_response['status'] == 'ERROR':
+        #         print(f'ERROR - [Main:S8] - {image_convert_backend_response["message"]}')
+        #         sys.exit(1)
+        #     else:
+        #         print(f'-> {image_convert_backend_response["message"]}')
+        # except Exception as error:
+        #     print(f'ERROR - [Main:S8] - {str(error)}')
+        #     sys.exit(1)
 
-        # Calling "image_encode" Function:S9
-        try:
-            image_encode_backend_response = image_encode()
-            if image_encode_backend_response['status'] == 'ERROR':
-                print(f'ERROR - [Main:S9] - {image_encode_backend_response["message"]}')
-                sys.exit(1)
-            elif image_encode_backend_response['status'] == 'INFO':
-                print(f'-> {image_encode_backend_response["message"]}')
-                sys.exit(0)
-            else:
-                print(f'-> {image_encode_backend_response["message"]}')
-                print('')
-        except Exception as error:
-            print(f'ERROR - [Main:S9] - {str(error)}')
-            sys.exit(1)
+        # # Calling "image_encode" Function:S9
+        # try:
+        #     image_encode_backend_response = image_encode()
+        #     if image_encode_backend_response['status'] == 'ERROR':
+        #         print(f'ERROR - [Main:S9] - {image_encode_backend_response["message"]}')
+        #         sys.exit(1)
+        #     elif image_encode_backend_response['status'] == 'INFO':
+        #         print(f'-> {image_encode_backend_response["message"]}')
+        #         sys.exit(0)
+        #     else:
+        #         print(f'-> {image_encode_backend_response["message"]}')
+        #         print('')
+        # except Exception as error:
+        #     print(f'ERROR - [Main:S9] - {str(error)}')
+        #     sys.exit(1)
 
-        # Encrypt Encoded Text Files:S10
-        try:
-            image_encrypt_backend_response = image_encrypt(images_folder_path = str(images_folder_path), encryption_password = encryption_password)
-            if image_encrypt_backend_response['status'] == 'ERROR':
-                print(f'ERROR - [Main:S10] - {image_encrypt_backend_response["message"]}')
-                sys.exit(1)
-            else:
-                print(f'-> {image_encrypt_backend_response["message"]}')
-        except Exception as error:
-            print(f'ERROR - [Main:S10] - {str(error)}')
-            sys.exit(1)
+        # # Encrypt Encoded Text Files:S10
+        # try:
+        #     image_encrypt_backend_response = image_encrypt(images_folder_path = str(images_folder_path), encryption_password = encryption_password)
+        #     if image_encrypt_backend_response['status'] == 'ERROR':
+        #         print(f'ERROR - [Main:S10] - {image_encrypt_backend_response["message"]}')
+        #         sys.exit(1)
+        #     else:
+        #         print(f'-> {image_encrypt_backend_response["message"]}')
+        # except Exception as error:
+        #     print(f'ERROR - [Main:S10] - {str(error)}')
+        #     sys.exit(1)
 
     elif user_choice == 'b':
         print('')

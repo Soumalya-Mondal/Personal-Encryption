@@ -1,5 +1,5 @@
 # Define "image_details_insert" Function
-def image_details_insert(database_folder_path: str, images_folder_path: str) -> dict[str, str]:
+def image_details_insert(database_file_path: str, images_folder_path: str) -> dict[str, str]:
     # Define Constant
     image_details_nested_list = []
 
@@ -16,8 +16,7 @@ def image_details_insert(database_folder_path: str, images_folder_path: str) -> 
     # Define Folder And File Path:S2
     try:
         images_folder_path_object = Path(images_folder_path)
-        database_folder_path_object = Path(database_folder_path)
-        image_encryption_database_file_path = Path(database_folder_path_object) / 'ImageEncryption.db'
+        image_encryption_database_file_path = Path(database_file_path)
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Details-Insert', 'step': '2', 'message': str(error)}
 

@@ -46,6 +46,7 @@ if __name__ == '__main__':
 
     if user_choice == 'a':
         print('')
+        print('-' * 60)
         # Define Folder Paths And Validate Input:S5
         try:
             parent_folder_path = Path.cwd()
@@ -65,7 +66,9 @@ if __name__ == '__main__':
                     print(f'ERROR - [Main:S6] - {database_create_backend_response["message"]}')
                     sys.exit(1)
                 else:
-                    print(f'-> {database_create_backend_response["message"]}\n')
+                    print(f'-> {database_create_backend_response["message"]}')
+                    print('')
+                    print('-' * 60)
         except Exception as error:
             print(f'ERROR - [Main:S6] - {str(error)}')
             sys.exit(1)
@@ -80,7 +83,9 @@ if __name__ == '__main__':
                 print(f'-> {raw_images_details_insert_backend_response["message"]}')
                 sys.exit(0)
             else:
-                print(f'-> {raw_images_details_insert_backend_response["message"]}\n')
+                print(f'-> {raw_images_details_insert_backend_response["message"]}')
+                print('')
+                print('-' * 60)
         except Exception as error:
             print(f'ERROR - [Main:S7] - {str(error)}')
             sys.exit(1)
@@ -93,6 +98,8 @@ if __name__ == '__main__':
                 sys.exit(1)
             else:
                 print(f'-> {image_convert_backend_response["message"]}')
+                print('')
+                print('-' * 60)
         except Exception as error:
             print(f'ERROR - [Main:S8] - {str(error)}')
             sys.exit(1)
@@ -108,6 +115,8 @@ if __name__ == '__main__':
                 sys.exit(0)
             else:
                 print(f'-> {image_encode_backend_response["message"]}')
+                print('')
+                print('-' * 60)
         except Exception as error:
             print(f'ERROR - [Main:S9] - {str(error)}')
             sys.exit(1)
@@ -120,12 +129,15 @@ if __name__ == '__main__':
                 sys.exit(1)
             else:
                 print(f'-> {image_encrypt_backend_response["message"]}')
+                print('')
+                print('-' * 60)
         except Exception as error:
             print(f'ERROR - [Main:S10] - {str(error)}')
             sys.exit(1)
 
     elif user_choice == 'b':
         print('')
+        print('-' * 60)
         # Define Folder Paths And Validate Input:S11
         try:
             parent_folder_path = Path.cwd()
@@ -148,6 +160,8 @@ if __name__ == '__main__':
                 sys.exit(1)
             else:
                 print(f'-> {image_check_backend_response["message"]}')
+                print('')
+                print('-' * 60)
         except Exception as error:
             print(f'ERROR - [Main:S12] - {str(error)}')
             sys.exit(1)
@@ -163,6 +177,8 @@ if __name__ == '__main__':
                 sys.exit(1)
             else:
                 print(f'-> {image_decrypt_backend_response["message"]}')
+                print('')
+                print('-' * 60)
         except Exception as error:
             print(f'ERROR - [Main:S13] - {str(error)}')
             sys.exit(1)
@@ -175,6 +191,8 @@ if __name__ == '__main__':
                 sys.exit(1)
             else:
                 print(f'-> {image_decode_backend_response["message"]}')
+                print('')
+                print('-' * 60)
         except Exception as error:
             print(f'ERROR - [Main:S14] - {str(error)}')
             sys.exit(1)

@@ -65,7 +65,6 @@ def image_encrypt(database_file_path: str, encryption_password: str) -> dict[str
 
     # Encrypt Encoded Text Files:S6
     try:
-        print('')
         for encoded_image_details_row in encoded_images_details_rows:
             encoded_text_file_path = Path(encoded_image_details_row['file_path'])
             plaintext = encoded_text_file_path.read_bytes()

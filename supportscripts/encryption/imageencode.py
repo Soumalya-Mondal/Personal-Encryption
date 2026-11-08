@@ -60,7 +60,6 @@ def image_encode(database_file_path: str) -> dict[str, str]:
 
     # Convert Input Images To Base64 Text Files:S6
     try:
-        print('')
         for converted_image_details_row in converted_images_details_rows:
             converted_image_file_path = Path(converted_image_details_row['file_path'])
             base64_text = base64.b64encode(converted_image_file_path.read_bytes()).decode('ascii')

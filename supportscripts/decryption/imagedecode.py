@@ -6,6 +6,7 @@ def image_decode(database_file_path: str) -> dict[str, str]:
         import shutil
         import base64
         import sqlite3
+        import hashlib
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decode', 'step': '1', 'message': str(error)}
 
@@ -58,14 +59,59 @@ def image_decode(database_file_path: str) -> dict[str, str]:
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decode', 'step': '6', 'message': str(error)}
 
-    # Copy Original Images To "images" Folder And Delete "tmp" Folder:S7
+    # Create Original Image File Details Dictionary From "OriginalImages" Folder:S7
     try:
-        for original_image_file_path in sorted(original_images_folder_path.iterdir()):
-            if original_image_file_path.is_file():
-                shutil.copy(str(original_image_file_path), str(images_folder_path_object))
-        shutil.rmtree(tmp_folder_path)
+        original_image_file_details_dict = {
+            file_path.name: hashlib.md5(file_path.read_bytes()).hexdigest()
+            for file_path in original_images_folder_path.iterdir()
+            if file_path.is_file() and file_path.suffix.lower() == '.jpg'
+        }
+        if not original_image_file_details_dict:
+            return {'status': 'INFO', 'file_name': 'Image-Decode', 'step': '7', 'message': 'No Original Image Files Found In "OriginalImages" Folder'}
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decode', 'step': '7', 'message': str(error)}
 
-    # Return Success:S8
-    return {'status': 'SUCCESS', 'file_name': 'Image-Decode', 'step': '8', 'message': 'All The Images Decoded And Copied To "images" Folder Successfully'}
+    # Compare Original Image Hashes With "converted_images_details" Table:S8
+    try:
+        with sqlite3.connect(str(database_file_path_object)) as db_connection:
+            db_connection.row_factory = sqlite3.Row
+            db_cursor = db_connection.cursor()
+            for original_image_file_name, original_image_file_hash in original_image_file_details_dict.items():
+                converted_image_details_row = db_cursor.execute(
+                    'SELECT file_hash FROM converted_images_details WHERE file_name = ?',
+                    (original_image_file_name,)
+                ).fetchone()
+                if not converted_image_details_row:
+                    return {'status': 'ERROR', 'file_name': 'Image-Decode', 'step': '8', 'message': f'No Converted Image Details Found For "{original_image_file_name}"'}
+                converted_file_hash = converted_image_details_row['file_hash']
+                if original_image_file_hash != converted_file_hash:
+                    return {'status': 'ERROR', 'file_name': 'Image-Decode', 'step': '8', 'message': f'Hash Mismatch For "{original_image_file_name}"'}
+    except Exception as error:
+        return {'status': 'ERROR', 'file_name': 'Image-Decode', 'step': '8', 'message': str(error)}
+
+    # Copy Renamed Original Images To "images" Folder And Delete "tmp" Folder:S9
+    try:
+        with sqlite3.connect(str(database_file_path_object)) as db_connection:
+            db_connection.row_factory = sqlite3.Row
+            db_cursor = db_connection.cursor()
+            for original_image_file_name in original_image_file_details_dict.keys():
+                converted_image_details_row = db_cursor.execute('''
+                    SELECT rid.file_name
+                    FROM converted_images_details cid
+                    INNER JOIN raw_images_details rid ON cid.raw_file_id = rid.file_id
+                    WHERE cid.file_name = ?
+                ''', (original_image_file_name,)).fetchone()
+                if not converted_image_details_row:
+                    return {'status': 'ERROR', 'file_name': 'Image-Decode', 'step': '9', 'message': f'No Raw Image Details Found For "{original_image_file_name}"'}
+                raw_file_name = converted_image_details_row['file_name']
+                raw_file_stem = Path(raw_file_name).stem
+                shutil.copy(
+                    str(original_images_folder_path / original_image_file_name),
+                    str(images_folder_path_object / f'{raw_file_stem}.jpg')
+                )
+        shutil.rmtree(tmp_folder_path)
+    except Exception as error:
+        return {'status': 'ERROR', 'file_name': 'Image-Decode', 'step': '9', 'message': str(error)}
+
+    # Return Success:S10
+    return {'status': 'SUCCESS', 'file_name': 'Image-Decode', 'step': '10', 'message': 'All The Images Decoded And Copied To "images" Folder Successfully'}

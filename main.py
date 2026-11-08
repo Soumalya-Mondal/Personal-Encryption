@@ -108,7 +108,6 @@ if __name__ == '__main__':
                 sys.exit(0)
             else:
                 print(f'-> {image_encode_backend_response["message"]}')
-                print('')
         except Exception as error:
             print(f'ERROR - [Main:S9] - {str(error)}')
             sys.exit(1)
@@ -155,7 +154,7 @@ if __name__ == '__main__':
 
         # Decrypt Encrypted Files From "images" Folder:S13
         try:
-            image_decrypt_backend_response = image_decrypt(database_file_path = str(database_file_path), encryption_password = encryption_password)
+            image_decrypt_backend_response = image_decrypt(database_file_path = str(database_file_path), images_folder_path = str(images_folder_path), encryption_password = encryption_password)
             if image_decrypt_backend_response['status'] == 'ERROR':
                 print(f'ERROR - [Main:S13] - {image_decrypt_backend_response["message"]}')
                 sys.exit(1)

@@ -58,7 +58,7 @@ def image_decrypt(database_file_path: str, encryption_password: str) -> dict[str
 
     # Decrypt Encrypted Files:S6
     try:
-        for decrypted_number, encrypted_image_details_row in enumerate(encrypted_images_details_rows, start = 1):
+        for encrypted_image_details_row in encrypted_images_details_rows:
             encrypted_image_file_path = Path(encrypted_image_details_row['copied_file_path'])
             if not (encrypted_image_file_path.exists() and encrypted_image_file_path.is_file()):
                 return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '6', 'message': f'File Not Found: {encrypted_image_file_path.name}'}
@@ -81,7 +81,7 @@ def image_decrypt(database_file_path: str, encryption_password: str) -> dict[str
                 return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '6', 'message': f'Incorrect password or damaged encrypted file: {encrypted_image_file_path.name}'}
             decrypted_file_path = encoded_images_folder_path / f'{encrypted_image_file_path.name}.txt'
             decrypted_file_path.write_bytes(plaintext)
-            print(f'{decrypted_number:05d}-> "{encrypted_image_file_path.name}" Has Been Decrypted With Password')
+            print(f'"{encrypted_image_file_path.name}" Has Been Decrypted With Password')
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '6', 'message': str(error)}
 

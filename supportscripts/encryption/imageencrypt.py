@@ -66,7 +66,7 @@ def image_encrypt(database_file_path: str, encryption_password: str) -> dict[str
     # Encrypt Encoded Text Files:S6
     try:
         print('')
-        for encrypted_number, encoded_image_details_row in enumerate(encoded_images_details_rows, start = 1):
+        for encoded_image_details_row in encoded_images_details_rows:
             encoded_text_file_path = Path(encoded_image_details_row['file_path'])
             plaintext = encoded_text_file_path.read_bytes()
             salt = secrets.token_bytes(SALT_SIZE)
@@ -82,7 +82,7 @@ def image_encrypt(database_file_path: str, encryption_password: str) -> dict[str
             encrypted_file_path = encrypted_images_folder_path / encoded_text_file_path.stem
             with encrypted_file_path.open('xb') as output:
                 output.write(salt + ciphertext)
-            print(f'{encrypted_number:05d}-> "{encoded_text_file_path.name}" Has Been Encrypted With Password')
+            print(f'"{encoded_text_file_path.name}" Has Been Encrypted With Password')
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Encrypt', 'step': '6', 'message': str(error)}
 
@@ -102,8 +102,8 @@ def image_encrypt(database_file_path: str, encryption_password: str) -> dict[str
 
     # Fetch Encrypted Image Details:S8
     try:
-        for encrypted_number, encrypted_image_file_path in enumerate(encrypted_image_file_path_list, start = 1):
-            raw_file_id = encoded_images_details_rows[encrypted_number - 1]['raw_file_id']
+        for encrypted_image_file_path in encrypted_image_file_path_list:
+            raw_file_id = encrypted_image_file_path.stem
             file_name = encrypted_image_file_path.name
             original_file_path = str(encrypted_image_file_path)
             copied_file_path = str(images_folder_path_object / encrypted_image_file_path.name)

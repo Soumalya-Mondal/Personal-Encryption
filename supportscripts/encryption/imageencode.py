@@ -61,12 +61,12 @@ def image_encode(database_file_path: str) -> dict[str, str]:
     # Convert Input Images To Base64 Text Files:S6
     try:
         print('')
-        for image_number, converted_image_details_row in enumerate(converted_images_details_rows, start = 1):
+        for converted_image_details_row in converted_images_details_rows:
             converted_image_file_path = Path(converted_image_details_row['file_path'])
             base64_text = base64.b64encode(converted_image_file_path.read_bytes()).decode('ascii')
             encoded_image_file_path = encoded_images_folder_path / f'{converted_image_file_path.stem}.txt'
             encoded_image_file_path.write_text(base64_text, encoding = 'ascii')
-            print(f'{image_number:05d}-> "{converted_image_file_path.name}" File Encoded Into Base64')
+            print(f'"{converted_image_file_path.name}" File Encoded Into Base64')
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Encode', 'step': '6', 'message': str(error)}
 
@@ -76,8 +76,8 @@ def image_encode(database_file_path: str) -> dict[str, str]:
             file_path for file_path in encoded_images_folder_path.iterdir()
             if file_path.is_file()
         )
-        for image_number, encoded_image_file_path in enumerate(encoded_image_file_path_list, start = 1):
-            raw_file_id = converted_images_details_rows[image_number - 1]['raw_file_id']
+        for encoded_image_file_path in encoded_image_file_path_list:
+            raw_file_id = encoded_image_file_path.stem
             file_name = encoded_image_file_path.name
             file_path = str(encoded_image_file_path)
             file_type = 'txt'

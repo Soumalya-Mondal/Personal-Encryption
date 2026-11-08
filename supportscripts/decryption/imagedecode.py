@@ -48,11 +48,11 @@ def image_decode(images_folder_path: str) -> dict[str, str]:
     # Convert Base64 Text Files To Original Images:S6
     try:
         print('')
-        for decoded_number, encoded_text_file_path in enumerate(encoded_text_file_path_list, start = 1):
+        for encoded_text_file_path in encoded_text_file_path_list:
             image_bytes = base64.b64decode(encoded_text_file_path.read_bytes(), validate = True)
             original_image_file_path = original_images_folder_path / f'{encoded_text_file_path.stem}.jpg'
             original_image_file_path.write_bytes(image_bytes)
-            print(f'{decoded_number:05d}-> "{encoded_text_file_path.name}" Has Been Decoded From Base64')
+            print(f'"{encoded_text_file_path.name}" Has Been Decoded From Base64')
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decode', 'step': '6', 'message': str(error)}
 

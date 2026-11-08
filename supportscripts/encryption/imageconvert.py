@@ -13,7 +13,7 @@ def image_convert(database_file_path: str) -> dict[str, str]:
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Convert', 'step': '1', 'message': str(error)}
 
-    # Define Folder Path:S2
+    # Define Folder Path And Database File Path Object:S2
     try:
         parent_folder_path = Path.cwd()
         database_file_path_object = Path(database_file_path)

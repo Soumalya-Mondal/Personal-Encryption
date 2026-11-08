@@ -12,11 +12,11 @@ if __name__ == '__main__':
     try:
         sys.path.append(str(Path.cwd()))
         from supportscripts.databasecreate import database_create
-        from supportscripts.imageconvert import image_convert
-        from supportscripts.imageencode import image_encode
-        from supportscripts.imageencrypt import image_encrypt
-        from supportscripts.imagedecrypt import image_decrypt
-        from supportscripts.imagedecode import image_decode
+        from supportscripts.encryption.imageconvert import image_convert
+        from supportscripts.encryption.imageencode import image_encode
+        from supportscripts.encryption.imageencrypt import image_encrypt
+        from supportscripts.decryption.imagedecrypt import image_decrypt
+        from supportscripts.decryption.imagedecode import image_decode
         from supportscripts.rawimagesdetailsinsert import raw_images_details_insert
     except Exception as error:
         print(f'ERROR - [Main:S2] - {str(error)}')
@@ -112,17 +112,17 @@ if __name__ == '__main__':
             print(f'ERROR - [Main:S9] - {str(error)}')
             sys.exit(1)
 
-        # # Encrypt Encoded Text Files:S10
-        # try:
-        #     image_encrypt_backend_response = image_encrypt(images_folder_path = str(images_folder_path), encryption_password = encryption_password)
-        #     if image_encrypt_backend_response['status'] == 'ERROR':
-        #         print(f'ERROR - [Main:S10] - {image_encrypt_backend_response["message"]}')
-        #         sys.exit(1)
-        #     else:
-        #         print(f'-> {image_encrypt_backend_response["message"]}')
-        # except Exception as error:
-        #     print(f'ERROR - [Main:S10] - {str(error)}')
-        #     sys.exit(1)
+        # Encrypt Encoded Text Files:S10
+        try:
+            image_encrypt_backend_response = image_encrypt(database_file_path = str(database_file_path), encryption_password = encryption_password)
+            if image_encrypt_backend_response['status'] == 'ERROR':
+                print(f'ERROR - [Main:S10] - {image_encrypt_backend_response["message"]}')
+                sys.exit(1)
+            else:
+                print(f'-> {image_encrypt_backend_response["message"]}')
+        except Exception as error:
+            print(f'ERROR - [Main:S10] - {str(error)}')
+            sys.exit(1)
 
     elif user_choice == 'b':
         print('')

@@ -1,5 +1,8 @@
 # Define "image_encode" Function
 def image_encode(database_file_path: str) -> dict[str, str]:
+    # Define Constant
+    encoded_images_details_nested_list = []
+
     # Importing Python Modules:S1
     try:
         from pathlib import Path
@@ -10,7 +13,7 @@ def image_encode(database_file_path: str) -> dict[str, str]:
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Encode', 'step': '1', 'message': str(error)}
 
-    # Define Folder Path:S2
+    # Define Folder Path And Database File Path Object:S2
     try:
         parent_folder_path = Path.cwd()
         database_file_path_object = Path(database_file_path)
@@ -69,7 +72,6 @@ def image_encode(database_file_path: str) -> dict[str, str]:
 
     # Fetch Encoded Image Details:S7
     try:
-        encoded_images_details_nested_list = []
         encoded_image_file_path_list = sorted(
             file_path for file_path in encoded_images_folder_path.iterdir()
             if file_path.is_file()

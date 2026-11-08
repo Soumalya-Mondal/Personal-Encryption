@@ -13,7 +13,7 @@ def raw_images_details_insert(database_file_path: str, images_folder_path: str) 
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Raw-Image-Details-Insert', 'step': '1', 'message': str(error)}
 
-    # Define Folder Path Object:S2
+    # Define Folder And Database File Path Object:S2
     try:
         images_folder_path_object = Path(images_folder_path)
         database_file_path_object = Path(database_file_path)

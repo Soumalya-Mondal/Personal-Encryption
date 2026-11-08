@@ -7,7 +7,7 @@ def database_create(database_file_path: str) -> dict[str, str]:
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Database-Create', 'step': '1', 'message': str(error)}
 
-    # Check Database File Already Exists:S2
+    # Check Database File Path Already Exists:S2
     try:
         database_file_path_object = Path(database_file_path)
         if database_file_path_object.exists() and database_file_path_object.is_file():
@@ -87,7 +87,8 @@ def database_create(database_file_path: str) -> dict[str, str]:
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 raw_file_id TEXT NOT NULL CHECK(LENGTH(raw_file_id) = 6),
                 file_name TEXT NOT NULL,
-                file_path TEXT NOT NULL,
+                original_file_path TEXT NOT NULL,
+                copied_file_path TEXT NOT NULL,
                 file_size_bytes BIGINT NOT NULL,
                 file_hash TEXT NOT NULL,
                 FOREIGN KEY (raw_file_id) REFERENCES raw_images_details(file_id)

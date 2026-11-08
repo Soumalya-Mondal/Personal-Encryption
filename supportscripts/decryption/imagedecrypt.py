@@ -30,7 +30,7 @@ def image_decrypt(images_folder_path: str, encryption_password: str) -> dict[str
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '3', 'message': str(error)}
 
-    # Creating Path Object And Check If "images" Folder Is Present:S4
+    # Check If "images" Folder Is Present:S4
     try:
         if not (images_folder_path_object.exists() and images_folder_path_object.is_dir()):
             return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '4', 'message': f'"{images_folder_path_object.name}" Folder Not Present'}

@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # Define project root
-PROJECT_ROOT="/home/soumalya/Projects/Python/Image-Encryption"
+PROJECT_ROOT="/home/soumalya/Projects/Python/Personal-Encryption"
 
 # Define targets
 IMAGES_FOLDER="${PROJECT_ROOT}/images"

@@ -17,6 +17,7 @@ if __name__ == '__main__':
         from supportscripts.encryption.imageencrypt import image_encrypt
         from supportscripts.decryption.imagedecrypt import image_decrypt
         from supportscripts.decryption.imagedecode import image_decode
+        from supportscripts.decryption.imagecheck import image_check
         from supportscripts.rawimagesdetailsinsert import raw_images_details_insert
     except Exception as error:
         print(f'ERROR - [Main:S2] - {str(error)}')
@@ -130,30 +131,48 @@ if __name__ == '__main__':
         try:
             parent_folder_path = Path.cwd()
             images_folder_path = Path(parent_folder_path) / 'images'
+            database_folder_path = Path(parent_folder_path) / 'database'
+            database_folder_path.mkdir(parents = True, exist_ok = True)
+            database_file_path = Path(database_folder_path) / 'ImageEncryption.db'
         except Exception as error:
             print(f'ERROR - [Main:S11] - {str(error)}')
             sys.exit(1)
 
-        # Decrypt Encrypted Files From "images" Folder:S12
+        # Calling "image_check" Function:S12
         try:
-            image_decrypt_backend_response = image_decrypt(images_folder_path = str(images_folder_path), encryption_password = encryption_password)
-            if image_decrypt_backend_response['status'] == 'ERROR':
-                print(f'ERROR - [Main:S12] - {image_decrypt_backend_response["message"]}')
+            image_check_backend_response = image_check(database_file_path = str(database_file_path), images_folder_path = str(images_folder_path))
+            if image_check_backend_response['status'] == 'ERROR':
+                print(f'ERROR - [Main:S12] - {image_check_backend_response["message"]}')
+                sys.exit(1)
+            elif image_check_backend_response['status'] == 'INFO':
+                print(f'ERROR - [Main:S12] - {image_check_backend_response["message"]}')
                 sys.exit(1)
             else:
-                print(f'-> {image_decrypt_backend_response["message"]}')
+                print(f'-> {image_check_backend_response["message"]}')
         except Exception as error:
             print(f'ERROR - [Main:S12] - {str(error)}')
             sys.exit(1)
 
-        # Decode Encoded Text Files To Original Images And Copy To "images" Folder:S13
-        try:
-            image_decode_backend_response = image_decode(images_folder_path = str(images_folder_path))
-            if image_decode_backend_response['status'] == 'ERROR':
-                print(f'ERROR - [Main:S13] - {image_decode_backend_response["message"]}')
-                sys.exit(1)
-            else:
-                print(f'-> {image_decode_backend_response["message"]}')
-        except Exception as error:
-            print(f'ERROR - [Main:S13] - {str(error)}')
-            sys.exit(1)
+        # # Decrypt Encrypted Files From "images" Folder:S13
+        # try:
+        #     image_decrypt_backend_response = image_decrypt(images_folder_path = str(images_folder_path), encryption_password = encryption_password)
+        #     if image_decrypt_backend_response['status'] == 'ERROR':
+        #         print(f'ERROR - [Main:S13] - {image_decrypt_backend_response["message"]}')
+        #         sys.exit(1)
+        #     else:
+        #         print(f'-> {image_decrypt_backend_response["message"]}')
+        # except Exception as error:
+        #     print(f'ERROR - [Main:S13] - {str(error)}')
+        #     sys.exit(1)
+
+        # # Decode Encoded Text Files To Original Images And Copy To "images" Folder:S13
+        # try:
+        #     image_decode_backend_response = image_decode(images_folder_path = str(images_folder_path))
+        #     if image_decode_backend_response['status'] == 'ERROR':
+        #         print(f'ERROR - [Main:S13] - {image_decode_backend_response["message"]}')
+        #         sys.exit(1)
+        #     else:
+        #         print(f'-> {image_decode_backend_response["message"]}')
+        # except Exception as error:
+        #     print(f'ERROR - [Main:S13] - {str(error)}')
+        #     sys.exit(1)

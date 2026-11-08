@@ -52,7 +52,7 @@ FFmpeg is required for the encryption workflow because every supported source im
 
    ```bash
    git clone <repository-url>
-   cd Image-Encryption
+   cd Personal-Encryption
    ```
 
 2. Install FFmpeg and confirm that it is available:
@@ -220,7 +220,7 @@ At the beginning of encryption, the entire `tmp/` tree is removed and recreated.
 ## Project Structure
 
 ```text
-Image-Encryption/
+Personal-Encryption/
 ├── images/                     # Destructive input/output workspace
 ├── supportscripts/
 │   ├── imageconvert.py         # Source discovery and FFmpeg conversion

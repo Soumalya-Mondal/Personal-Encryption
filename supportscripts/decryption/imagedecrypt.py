@@ -9,6 +9,7 @@ def image_decrypt(database_file_path: str, encryption_password: str) -> dict[str
         import shutil
         import base64
         import sqlite3
+        import hashlib
         from cryptography.fernet import Fernet, InvalidToken
         from cryptography.hazmat.primitives.kdf.argon2 import Argon2id
     except Exception as error:
@@ -17,10 +18,10 @@ def image_decrypt(database_file_path: str, encryption_password: str) -> dict[str
     # Define Folder Path:S2
     try:
         parent_folder_path = Path.cwd()
+        database_file_path_object = Path(database_file_path)
         tmp_folder_path = Path(parent_folder_path) / 'tmp'
         encoded_images_folder_path = Path(tmp_folder_path) / 'EncodedImages'
         images_folder_path_object = Path(parent_folder_path) / 'images'
-        database_file_path_object = Path(database_file_path)
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '2', 'message': str(error)}
 
@@ -85,15 +86,57 @@ def image_decrypt(database_file_path: str, encryption_password: str) -> dict[str
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '6', 'message': str(error)}
 
-    # Clear "images" Folder:S7
+    # Create Decrypted Text File Details Dictionary From "EncodedImages" Folder:S7
     try:
-        for images_item_path in images_folder_path_object.iterdir():
-            if images_item_path.is_dir():
-                shutil.rmtree(images_item_path)
-            else:
-                images_item_path.unlink()
+        decrypted_text_file_details_dict = {
+            file_path.name: hashlib.md5(file_path.read_bytes()).hexdigest()
+            for file_path in encoded_images_folder_path.iterdir()
+            if file_path.is_file() and file_path.suffix.lower() == '.txt'
+        }
+        if not decrypted_text_file_details_dict:
+            return {'status': 'INFO', 'file_name': 'Image-Decrypt', 'step': '7', 'message': 'No Decrypted Text Files Found In "EncodedImages" Folder'}
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '7', 'message': str(error)}
 
-    # Return Success:S8
-    return {'status': 'SUCCESS', 'file_name': 'Image-Decrypt', 'step': '8', 'message': 'All The Images Decrypted Successfully'}
+    # Compare Decrypted File Hashes With "encoded_images_details" Table:S8
+    try:
+        decrypted_file_id_hash_dict = {}
+        with sqlite3.connect(str(database_file_path_object)) as db_connection:
+            db_connection.row_factory = sqlite3.Row
+            db_cursor = db_connection.cursor()
+            for decrypted_file_name, decrypted_file_hash in decrypted_text_file_details_dict.items():
+                encoded_image_details_row = db_cursor.execute(
+                    'SELECT raw_file_id, file_hash FROM encoded_images_details WHERE file_name = ?',
+                    (decrypted_file_name,)
+                ).fetchone()
+                if not encoded_image_details_row:
+                    return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '8', 'message': f'No Encoded Image Details Found For "{decrypted_file_name}"'}
+                encoded_file_hash = encoded_image_details_row['file_hash']
+                if decrypted_file_hash != encoded_file_hash:
+                    return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '8', 'message': f'Hash Mismatch For "{decrypted_file_name}"'}
+                decrypted_file_id_hash_dict[decrypted_file_name] = encoded_image_details_row['raw_file_id']
+    except Exception as error:
+        return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '8', 'message': str(error)}
+
+    # Update Raw Images Status To "Encoded":S9
+    try:
+        with sqlite3.connect(str(database_file_path_object)) as db_connection:
+            db_cursor = db_connection.cursor()
+            for raw_file_id in decrypted_file_id_hash_dict.values():
+                db_cursor.execute(
+                    'UPDATE raw_images_details SET file_status = ? WHERE file_id = ?',
+                    ('Encoded', raw_file_id)
+                )
+            db_connection.commit()
+    except Exception as error:
+        return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '9', 'message': str(error)}
+
+    # Delete "images" Folder:S10
+    try:
+        if images_folder_path_object.exists() and images_folder_path_object.is_dir():
+            shutil.rmtree(images_folder_path_object)
+    except Exception as error:
+        return {'status': 'ERROR', 'file_name': 'Image-Decrypt', 'step': '10', 'message': str(error)}
+
+    # Return Success:S11
+    return {'status': 'SUCCESS', 'file_name': 'Image-Decrypt', 'step': '11', 'message': 'All The Images Decrypted Successfully'}

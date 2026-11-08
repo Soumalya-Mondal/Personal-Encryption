@@ -7,7 +7,7 @@ def database_create(database_file_path: str) -> dict[str, str]:
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Database-Create', 'step': '1', 'message': str(error)}
 
-    # Define Database File Path And Check If Already Exists:S2
+    # Check Database File Already Exists:S2
     try:
         database_file_path_object = Path(database_file_path)
         if database_file_path_object.exists() and database_file_path_object.is_file():

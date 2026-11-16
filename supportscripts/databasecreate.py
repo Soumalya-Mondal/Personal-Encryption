@@ -25,8 +25,7 @@ def database_create(database_file_path: str) -> dict[str, str]:
                 file_path TEXT NOT NULL,
                 file_type TEXT NOT NULL DEFAULT 'jpg' CHECK(file_type IN ('heic', 'jpg', 'jpeg', 'png')),
                 file_size_bytes BIGINT NOT NULL,
-                file_hash TEXT NOT NULL,
-                file_status TEXT NOT NULL DEFAULT 'Original' CHECK(file_status IN ('Original', 'Converted', 'Encoded', 'Encrypted'))
+                file_hash TEXT NOT NULL
             )
         '''
         with sqlite3.connect(str(database_file_path_object)) as db_connection:

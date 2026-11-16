@@ -54,10 +54,10 @@ def image_encrypt(database_file_path: str, encryption_password: str) -> dict[str
             encoded_images_details_rows = db_cursor.execute('''
                 SELECT ed.*
                 FROM encoded_images_details ed
-                INNER JOIN raw_images_details rd ON ed.raw_file_id = rd.file_id
-                WHERE rd.file_status = ?
+                LEFT JOIN encrypted_images_details eid ON ed.raw_file_id = eid.raw_file_id
+                WHERE eid.raw_file_id IS NULL
                 ORDER BY ed.id
-            ''', ('Encoded',)).fetchall()
+            ''').fetchall()
         if not encoded_images_details_rows:
             return {'status': 'INFO', 'file_name': 'Image-Encrypt', 'step': '5', 'message': 'No Encoded Image Details Found In Database'}
     except Exception as error:
@@ -126,24 +126,11 @@ def image_encrypt(database_file_path: str, encryption_password: str) -> dict[str
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Encrypt', 'step': '9', 'message': str(error)}
 
-    # Update Raw Images Status To "Encrypted":S10
-    try:
-        with sqlite3.connect(str(database_file_path_object)) as db_connection:
-            db_cursor = db_connection.cursor()
-            for encoded_image_details_row in encoded_images_details_rows:
-                db_cursor.execute(
-                    'UPDATE raw_images_details SET file_status = ? WHERE file_id = ?',
-                    ('Encrypted', encoded_image_details_row['raw_file_id'])
-                )
-            db_connection.commit()
-    except Exception as error:
-        return {'status': 'ERROR', 'file_name': 'Image-Encrypt', 'step': '10', 'message': str(error)}
-
-    # Delete "tmp" Folder:S11
+    # Delete "tmp" Folder:S10
     try:
         shutil.rmtree(tmp_folder_path)
     except Exception as error:
-        return {'status': 'ERROR', 'file_name': 'Image-Encrypt', 'step': '11', 'message': str(error)}
+        return {'status': 'ERROR', 'file_name': 'Image-Encrypt', 'step': '10', 'message': str(error)}
 
-    # Return Success:S12
-    return {'status': 'SUCCESS', 'file_name': 'Image-Encrypt', 'step': '12', 'message': 'All The Images Encrypted Successfully'}
+    # Return Success:S11
+    return {'status': 'SUCCESS', 'file_name': 'Image-Encrypt', 'step': '11', 'message': 'All The Images Encrypted Successfully'}

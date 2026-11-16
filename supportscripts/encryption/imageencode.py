@@ -49,10 +49,10 @@ def image_encode(database_file_path: str) -> dict[str, str]:
             converted_images_details_rows = db_cursor.execute('''
                 SELECT cd.*
                 FROM converted_images_details cd
-                INNER JOIN raw_images_details rd ON cd.raw_file_id = rd.file_id
-                WHERE rd.file_status = ?
+                LEFT JOIN encoded_images_details eid ON cd.raw_file_id = eid.raw_file_id
+                WHERE eid.raw_file_id IS NULL
                 ORDER BY cd.id
-            ''', ('Converted',)).fetchall()
+            ''').fetchall()
         if not converted_images_details_rows:
             return {'status': 'INFO', 'file_name': 'Image-Encode', 'step': '5', 'message': 'No Converted Image Details Found In Database'}
     except Exception as error:
@@ -100,18 +100,5 @@ def image_encode(database_file_path: str) -> dict[str, str]:
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Encode', 'step': '8', 'message': str(error)}
 
-    # Update Raw Images Status To "Encoded":S9
-    try:
-        with sqlite3.connect(str(database_file_path_object)) as db_connection:
-            db_cursor = db_connection.cursor()
-            for converted_image_details_row in converted_images_details_rows:
-                db_cursor.execute(
-                    'UPDATE raw_images_details SET file_status = ? WHERE file_id = ?',
-                    ('Encoded', converted_image_details_row['raw_file_id'])
-                )
-            db_connection.commit()
-    except Exception as error:
-        return {'status': 'ERROR', 'file_name': 'Image-Encode', 'step': '9', 'message': str(error)}
-
-    # Return Success:S10
-    return {'status': 'SUCCESS', 'file_name': 'Image-Encode', 'step': '10', 'message': 'All The Images Encoded Into Base64 Successfully'}
+    # Return Success:S9
+    return {'status': 'SUCCESS', 'file_name': 'Image-Encode', 'step': '9', 'message': 'All The Images Encoded Into Base64 Successfully'}

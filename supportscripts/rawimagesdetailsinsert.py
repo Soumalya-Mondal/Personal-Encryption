@@ -49,7 +49,7 @@ def raw_images_details_insert(database_file_path: str, images_folder_path: str) 
             file_size_bytes = input_image_file_path.stat().st_size
             file_hash = hashlib.md5(input_image_file_path.read_bytes()).hexdigest()
             image_details_nested_list.append(
-                (file_name, file_path, file_type, file_size_bytes, file_hash, 'Original')
+                (file_name, file_path, file_type, file_size_bytes, file_hash)
             )
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Raw-Image-Details-Insert', 'step': '5', 'message': str(error)}
@@ -68,8 +68,8 @@ def raw_images_details_insert(database_file_path: str, images_folder_path: str) 
                     if existing_file_id_row is None:
                         break
                 db_cursor.execute('''
-                    INSERT INTO raw_images_details (file_id, file_name, file_path, file_type, file_size_bytes, file_hash, file_status)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO raw_images_details (file_id, file_name, file_path, file_type, file_size_bytes, file_hash)
+                    VALUES (?, ?, ?, ?, ?, ?)
                 ''', (file_id,) + image_details_tuple)
             db_connection.commit()
     except Exception as error:

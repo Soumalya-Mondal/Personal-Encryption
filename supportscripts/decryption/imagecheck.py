@@ -42,10 +42,8 @@ def image_check(database_file_path: str, images_folder_path: str) -> dict[str, o
             encrypted_images_details_rows = db_cursor.execute('''
                 SELECT eid.copied_file_path, eid.file_hash
                 FROM encrypted_images_details eid
-                INNER JOIN raw_images_details rid ON eid.raw_file_id = rid.file_id
-                WHERE rid.file_status = ?
                 ORDER BY eid.id
-            ''', ('Encrypted',)).fetchall()
+            ''').fetchall()
         if not encrypted_images_details_rows:
             return {'status': 'INFO', 'file_name': 'Image-Check', 'step': '5', 'message': 'No Encrypted Image Details Found In Database'}
         encrypted_images_details_list = [

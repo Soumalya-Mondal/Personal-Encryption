@@ -36,10 +36,13 @@ def image_convert(database_file_path: str) -> dict[str, str]:
         with sqlite3.connect(str(database_file_path_object)) as db_connection:
             db_connection.row_factory = sqlite3.Row
             db_cursor = db_connection.cursor()
-            raw_images_details_rows = db_cursor.execute(
-                'SELECT file_id, file_path FROM raw_images_details WHERE file_status = ? ORDER BY id',
-                ('Original',)
-            ).fetchall()
+            raw_images_details_rows = db_cursor.execute('''
+                SELECT rid.file_id, rid.file_path
+                FROM raw_images_details rid
+                LEFT JOIN converted_images_details cid ON rid.file_id = cid.raw_file_id
+                WHERE cid.raw_file_id IS NULL
+                ORDER BY rid.id
+            ''').fetchall()
         if not raw_images_details_rows:
             return {'status': 'INFO', 'file_name': 'Image-Convert', 'step': '4', 'message': 'No Raw Image Details Found In Database'}
     except Exception as error:
@@ -99,18 +102,5 @@ def image_convert(database_file_path: str) -> dict[str, str]:
     except Exception as error:
         return {'status': 'ERROR', 'file_name': 'Image-Convert', 'step': '7', 'message': str(error)}
 
-    # Update Raw Images Status To "Converted":S8
-    try:
-        with sqlite3.connect(str(database_file_path_object)) as db_connection:
-            db_cursor = db_connection.cursor()
-            for raw_image_details_row in raw_images_details_rows:
-                db_cursor.execute(
-                    'UPDATE raw_images_details SET file_status = ? WHERE file_id = ?',
-                    ('Converted', raw_image_details_row['file_id'])
-                )
-            db_connection.commit()
-    except Exception as error:
-        return {'status': 'ERROR', 'file_name': 'Image-Convert', 'step': '8', 'message': str(error)}
-
-    # Return Success:S9
-    return {'status': 'SUCCESS', 'file_name': 'Image-Convert', 'step': '9', 'message': 'All The Images Converted To JPG Successfully'}
+    # Return Success:S8
+    return {'status': 'SUCCESS', 'file_name': 'Image-Convert', 'step': '8', 'message': 'All The Images Converted To JPG Successfully'}
